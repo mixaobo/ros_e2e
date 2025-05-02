@@ -1,8 +1,9 @@
+#!/usr/bin/env python2
 import rospy
 from std_msgs.msg import String
 
 def chatter_callback(msg):
-    rospy.loginfo(rospy.get_caller_id() + "I heard %s", message.data)
+    rospy.loginfo(rospy.get_caller_id() + "I heard %s", msg.data)
     
 
 def listener():
