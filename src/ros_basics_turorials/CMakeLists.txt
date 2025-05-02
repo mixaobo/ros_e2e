@@ -204,3 +204,14 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+# ...existing code...
+
+# Install Python scripts
+catkin_install_python(PROGRAMS
+  src/listener_e2e.py
+  src/talker_e2e.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# ...existing code...

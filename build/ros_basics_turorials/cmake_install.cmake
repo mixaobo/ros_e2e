@@ -52,3 +52,11 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ros_basics_turorials" TYPE FILE FILES "/home/lequ5/catkin_ws/src/ros_basics_turorials/package.xml")
 endif()
 
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ros_basics_turorials" TYPE PROGRAM FILES "/home/lequ5/catkin_ws/build/ros_basics_turorials/catkin_generated/installspace/listener_e2e.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ros_basics_turorials" TYPE PROGRAM FILES "/home/lequ5/catkin_ws/build/ros_basics_turorials/catkin_generated/installspace/talker_e2e.py")
+endif()
+

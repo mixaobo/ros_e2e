@@ -24,6 +24,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/lequ5/catkin_ws/src/CMakeLists.txt"
   "/home/lequ5/catkin_ws/src/ros_basics_turorials/CMakeLists.txt"
   "/home/lequ5/catkin_ws/src/ros_basics_turorials/package.xml"
+  "/home/lequ5/catkin_ws/src/ros_basics_turorials/src/listener_e2e.py"
+  "/home/lequ5/catkin_ws/src/ros_basics_turorials/src/talker_e2e.py"
   "/home/lequ5/catkin_ws/src/ros_essentials_cpp/CMakeLists.txt"
   "/home/lequ5/catkin_ws/src/ros_essentials_cpp/action/Fibonacci.action"
   "/home/lequ5/catkin_ws/src/ros_essentials_cpp/package.xml"
