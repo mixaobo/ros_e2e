@@ -131,6 +131,7 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/lequ5/catkin_ws/build/gtest/cmake_install.cmake")
+  include("/home/lequ5/catkin_ws/build/e2e_hpc/cmake_install.cmake")
   include("/home/lequ5/catkin_ws/build/ros_basics_turorials/cmake_install.cmake")
   include("/home/lequ5/catkin_ws/build/ros_essentials_cpp/cmake_install.cmake")
 

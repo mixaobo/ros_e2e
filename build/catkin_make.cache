@@ -1,2 +1,2 @@
-ros_basics_turorials:ros_essentials_cpp
+e2e_hpc:ros_basics_turorials:ros_essentials_cpp
 -DCATKIN_DEVEL_PREFIX=/home/lequ5/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/lequ5/catkin_ws/install -G Unix Makefiles
