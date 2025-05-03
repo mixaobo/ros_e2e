@@ -3,6 +3,6 @@ prefix=/home/lequ5/catkin_ws/install
 Name: ros_basics_turorials
 Description: Description of ros_basics_turorials
 Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lros_basics_turorials
+Requires: roscpp rospy std_msgs message_runtime

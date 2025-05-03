@@ -1,93 +1,50 @@
 # ros_e2e
 
-What is the first command you must run in ROS?
+Create project
+1. Setup environment
+  - gedit ~/.bashrc
+  - add "source /opt/ros/melodic/setup.bash" to the file
+  - add "<your_workspace_path>/devel/setup.bash" to the file
+  - Run source ~/.bashrc if new ROS packaged is created
+2. Create new ROS project
+  - mkdir -p ~/catkin_ws/src (will create parent folder if it's not exist)
+3. build your ROS workspace
+  - ~/catkin_ws$ catkin_make
 
-roscore 
+Create new ROS package
+1. catkin_create_pkg <pkg_name> rospy roscpp std_msgs #library, dependencies, ...
+2. Add new python file under <pkg_name><pkg_name>/src
+  # Install Python scripts
+  catkin_install_python(PROGRAMS
+    src/listener_e2e.py
+    src/talker_e2e.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
+3. Compile again with catkin_make
 
-What is the command to run the Turtlesim simulator?
+How to run.
+1. Run master node: roscore
+2. Run node: rosrun <pkg_name> <node_name>
 
-rosrun turtlesim turtlesim_node 
+Create custom Message
+1. Add new_file.msg
+2. Update Cmake
+  find_package(catkin REQUIRED COMPONENTS
+    roscpp
+    rospy
+    std_msgs
+    message_generation
+  )
 
-What is the command to find the list of all ROS nodes?
+  add_message_files(
+    FILES
+    CustomMsg.msg
+  )
+3. update package.xml
+    <build_depend>message_generation</build_depend>
+    <exec_depend>message_generation</exec_depend>
 
-rosnode list  
 
-What is the command to find the list of all ROS topics?
 
-rostopic list  
 
-What is the topic that tells about the position of the turtle?
 
-/turtle1/pose 
-
-What is the topic that sends command to the turtle to make it move?
-
-turtle1/cmd_vel 
-
-What is the command that tells you information about the topic about velocity?
-
-rostopic info /turtle1/cmd_vel 
-
-What is the node used to publish velocity commands to the turtle?
-
-turtle_teleop_key                
-
-What is the node used to subscribe to velocity commands to the turtle?
-
-turtlesim 
-
-What is the command that allows to see the type of message for velocity topic?
-
-rostopic info /turtle1/cmd_vel
-
-What is the content of the velocity message? Explain its content.
-
-rosmsg show geometry_msgs/Twist
-
-  
-geometry_msgs/Vector3 linear
-
-  
-  float64 x
-
-  
-  float64 y
-
-  
-  float64 z
-
-  
-geometry_msgs/Vector3 angular
-
-  
-  float64 x
-
-  
-  float64 y
-
-  
-  float64 z
-
-  
- 
-we use x
-
-y for linear velocity and z for angular velocity
-
-What is the content of the position message? Explain its content
-
-rosmsg show turtlesim/Pose
-
-  
-float32 x
-
-  
-float32 y
-
-  
-float32 theta
-
-  
-float32 linear_velocity
-
-  float32 angular_velocity
