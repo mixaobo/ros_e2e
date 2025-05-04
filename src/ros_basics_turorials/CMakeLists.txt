@@ -55,11 +55,10 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  AddTwoInts.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -215,6 +214,8 @@ catkin_install_python(PROGRAMS
   src/talker_e2e.py
   src/Listener_customMsg.py
   src/Publisher_customMsg.py
+  src/add_client.py
+  src/add_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

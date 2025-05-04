@@ -3,38 +3,42 @@ import rospy
 from ros_basics_turorials.msg import CustomMsg
 
 def Pubs_customMsg():
-    #Define topic name, data type, queue for topic message before listener consumes
+    # Creates a publisher object for the topic 'Sensor_Topic', which uses the `CustomMsg` message type.
+    # The `queue_size=10` ensures that up to 10 messages are buffered before being processed by subscribers.
     pub = rospy.Publisher('Sensor_Topic', CustomMsg, queue_size=10) 
     
-    #Initialize the node: Name, anonymous=True means that if multiple nodes are running, they will have unique names
+    # Initializes the ROS node with the name 'Publisher_node'. The `anonymous=True` argument ensures
+    # that if multiple instances of this node are launched, they will have unique names.
     rospy.init_node('Publisher_node', anonymous=True)
 
-    #Set the rate at which the loop will run
-    rate = rospy.Rate(1) # 10hz
+    # Sets the rate at which the loop will run. Here, the loop will execute once per second (1 Hz).
+    rate = rospy.Rate(1)
 
-    #Publish messages in a loop
+    # A counter variable used to modify the message content in each iteration.
     i = 0
     while not rospy.is_shutdown():
-        #Create a message
+        # Creates an instance of the `CustomMsg` message type and assigns values to its fields.
         iot_sensor = CustomMsg()
         iot_sensor.id = 1 + i
         iot_sensor.name = "Temperature + %d" % i
         
-        #Log the message to the console
+        # Logs the message content to the console for debugging or monitoring purposes.
         rospy.loginfo(iot_sensor)
         
-        #Publish the message to the topic
+        # Publishes the message to the 'Sensor_Topic' topic so that subscribers can receive it.
         pub.publish(iot_sensor)
         
-        #Sleep for the specified rate
+        # Pauses the loop for the duration specified by the rate (1 second in this case).
         rate.sleep()
 
-        #Increment the counter
+        # Increments the counter to modify the message content in the next iteration.
         i += 1
 
 
 if __name__ == '__main__':
     try:
+        # Calls the function to start publishing messages to the topic.
         Pubs_customMsg()
     except rospy.ROSInterruptException:
+        # Handles the exception if the ROS node is interrupted (e.g., by pressing Ctrl+C).
         pass
