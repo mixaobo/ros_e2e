@@ -216,6 +216,8 @@ catkin_install_python(PROGRAMS
   src/Publisher_customMsg.py
   src/add_client.py
   src/add_server.py
+  src/ethernet_send.py
+  src/ethernet_receive.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
