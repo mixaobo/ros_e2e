@@ -1,30 +1,35 @@
 #!/usr/bin/env python2
 import rospy
-from std_msgs.msg import String
+import numpy as np
+from ros_basics_turorials.msg import Localize
 
 def talker():
     # Creates a publisher object for the topic 'chatter', which uses the `String` message type.
     # The `queue_size=10` ensures that up to 10 messages are buffered before being processed by subscribers.
-    pub = rospy.Publisher('chatter', String, queue_size=10) 
+    pub = rospy.Publisher('chatter', Localize, queue_size=10) 
     
     # Initializes the ROS node with the name 'talker'. The `anonymous=True` argument ensures
     # that if multiple instances of this node are launched, they will have unique names.
     rospy.init_node('talker', anonymous=True)
 
     # Sets the rate at which the loop will run. Here, the loop will execute once per second (1 Hz).
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(2)
 
     # A counter variable used to modify the message content in each iteration.
     i = 0
     while not rospy.is_shutdown():
         # Creates a string message with a counter value appended to "hello world".
-        hello_str = "hello world %s" % i
+        ranging_msg = Localize()
         
         # Logs the message content to the console for debugging or monitoring purposes.
-        rospy.loginfo(hello_str)
+        ranging_msg.Distance = np.random.randint(58,66)
+        ranging_msg.AoA = np.random.randint(35, 55)
+
+        # Logs the message content to the console for debugging or monitoring purposes.
+        print(ranging_msg)
         
-        # Publishes the message to the 'chatter' topic so that subscribers can receive it.
-        pub.publish(hello_str)
+        # Publishes the message to the 'chatter' topic. This message will be sent to all subscribers
+        pub.publish(ranging_msg)
         
         # Pauses the loop for the duration specified by the rate (1 second in this case).
         rate.sleep()
