@@ -122,7 +122,7 @@ def Node_localize():
 initial_x = calculate_initial_guess(anchor1, 60, 40)
 ekf = ExtendedKalmanFilter(
     x_init=initial_x,
-    P_init=np.eye(2) * 5,
+    P_init=np.eye(2) * 100,
     Q=np.eye(2) * 0.3,
     R=np.diag([1.0, np.deg2rad(1.0)**2]) 
 )
