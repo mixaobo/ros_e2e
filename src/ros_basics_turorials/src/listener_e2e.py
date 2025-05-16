@@ -29,6 +29,10 @@ anchor1 = np.array([0.0, 0.0])  # Fixed anchor position
 def wrap_angle(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
+def wrap_angle_360(angle):
+    """Wrap angle to [0, 360) degrees."""
+    return angle % 360
+
 def calculate_initial_guess(anchor, d, aoa_deg):
     aoa_rad = np.deg2rad(aoa_deg)
     x = anchor[0] + d * np.cos(aoa_rad)
@@ -88,18 +92,19 @@ def chatter_callback(msg):
     
     #Debug msg
     received_xy = calculate_initial_guess(anchor1, msg.Distance, msg.AoA)
-    print("Received Position x/y: ", received_xy)
+    print("Received Position index/x/y: ", msg.Index, received_xy)
     predict_xy = ekf.current_position()
     deviation = np.abs((np.linalg.norm(predict_xy) - np.linalg.norm(received_xy)))
     if (deviation >= 5):
         print("Deviation too large, ignoring prediction")
     else:
         #public position to other node
-        print("EKF Position x/y:", predict_xy)
+        print("EKF Position index/x/y: ", msg.Index, predict_xy)
         ranging_msg = Localize()
         predict_distance, predict_angle = calcualte_distance_angle(0, 0, predict_xy[0], predict_xy[1])
+        ranging_msg.Index = msg.Index
         ranging_msg.Distance = predict_distance
-        ranging_msg.AoA = predict_angle
+        ranging_msg.AoA = wrap_angle_360(predict_angle)
         pub_server.publish(ranging_msg)
     print("------------")
 
