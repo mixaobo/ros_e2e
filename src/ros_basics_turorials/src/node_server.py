@@ -6,9 +6,10 @@ from scipy.optimize import least_squares
 
 def node_server_callback(msg):
     parsed_msg = Localize()
+    parsed_msg.Index = msg.Index
     parsed_msg.Distance = msg.Distance
     parsed_msg.AoA = msg.AoA
-    print("node_server received msg: ", parsed_msg)
+    print("node_server receive index/Distance/Msg: ", parsed_msg)
     
 
 def Node_server():
