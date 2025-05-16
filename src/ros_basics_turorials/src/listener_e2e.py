@@ -26,7 +26,7 @@ def estimate_position(d, aoa_deg):
 anchor1 = np.array([0.0, 0.0])  # Fixed anchor position
 
 
-def wrap_angle(angle):
+def wrap_angle_radians(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
 def wrap_angle_360(angle):
@@ -71,7 +71,7 @@ class ExtendedKalmanFilter:
         ])
 
         y = z - z_pred
-        y[1] = wrap_angle(y[1])
+        y[1] = wrap_angle_radians(y[1])
 
         S = H.dot(self.P).dot(H.T) + self.R
         K = self.P.dot(H.T).dot(np.linalg.inv(S))
@@ -104,7 +104,7 @@ def chatter_callback(msg):
         predict_distance, predict_angle = calcualte_distance_angle(0, 0, predict_xy[0], predict_xy[1])
         ranging_msg.Index = msg.Index
         ranging_msg.Distance = predict_distance
-        ranging_msg.AoA = wrap_angle_360(predict_angle)
+        ranging_msg.AoA = predict_angle #wrap_angle_360(predict_angle)
         pub_server.publish(ranging_msg)
     print("------------")
 
