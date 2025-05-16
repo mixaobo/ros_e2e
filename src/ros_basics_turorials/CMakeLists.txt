@@ -219,6 +219,7 @@ catkin_install_python(PROGRAMS
   src/add_server.py
   src/ethernet_send.py
   src/ethernet_receive.py
+  src/node_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

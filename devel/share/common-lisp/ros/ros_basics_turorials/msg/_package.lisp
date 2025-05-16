@@ -3,5 +3,7 @@
   (:export
    "<CUSTOMMSG>"
    "CUSTOMMSG"
+   "<LOCALIZE>"
+   "LOCALIZE"
   ))
 

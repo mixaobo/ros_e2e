@@ -69,10 +69,19 @@ class ExtendedKalmanFilter:
         y = z - z_pred
         y[1] = wrap_angle(y[1])
 
+        #python2
         S = H.dot(self.P).dot(H.T) + self.R
         K = self.P.dot(H.T).dot(np.linalg.inv(S))
         self.x = self.x + K.dot(y)
         self.P = (np.eye(2) - K.dot(H)).dot(self.P)
+
+        """
+        #python3
+        S = H @ self.P @ H.T + self.R
+        K = self.P @ H.T @ np.linalg.inv(S)
+        self.x = self.x + K @ y
+        self.P = (np.eye(2) - K @ H) @ self.P
+        """
 
     def current_position(self):
         return self.x
