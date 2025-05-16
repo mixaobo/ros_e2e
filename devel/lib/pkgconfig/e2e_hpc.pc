@@ -1,8 +1,0 @@
-prefix=/home/lequ5/catkin_ws/devel
-
-Name: e2e_hpc
-Description: Description of e2e_hpc
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
