@@ -24,16 +24,21 @@ struct Localize_
   typedef Localize_<ContainerAllocator> Type;
 
   Localize_()
-    : Distance(0.0)
+    : Index(0)
+    , Distance(0.0)
     , AoA(0.0)  {
     }
   Localize_(const ContainerAllocator& _alloc)
-    : Distance(0.0)
+    : Index(0)
+    , Distance(0.0)
     , AoA(0.0)  {
   (void)_alloc;
     }
 
 
+
+   typedef uint64_t _Index_type;
+  _Index_type Index;
 
    typedef double _Distance_type;
   _Distance_type Distance;
@@ -70,7 +75,8 @@ return s;
 template<typename ContainerAllocator1, typename ContainerAllocator2>
 bool operator==(const ::ros_basics_turorials::Localize_<ContainerAllocator1> & lhs, const ::ros_basics_turorials::Localize_<ContainerAllocator2> & rhs)
 {
-  return lhs.Distance == rhs.Distance &&
+  return lhs.Index == rhs.Index &&
+    lhs.Distance == rhs.Distance &&
     lhs.AoA == rhs.AoA;
 }
 
@@ -128,12 +134,12 @@ struct MD5Sum< ::ros_basics_turorials::Localize_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "fdd62682e37010cc81e982ba74365e59";
+    return "9bc0a38325dfefe892ff07d62efd38d8";
   }
 
   static const char* value(const ::ros_basics_turorials::Localize_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xfdd62682e37010ccULL;
-  static const uint64_t static_value2 = 0x81e982ba74365e59ULL;
+  static const uint64_t static_value1 = 0x9bc0a38325dfefe8ULL;
+  static const uint64_t static_value2 = 0x92ff07d62efd38d8ULL;
 };
 
 template<class ContainerAllocator>
@@ -152,7 +158,8 @@ struct Definition< ::ros_basics_turorials::Localize_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float64 Distance\n"
+    return "uint64 Index\n"
+"float64 Distance\n"
 "float64 AoA\n"
 "\n"
 ;
@@ -173,6 +180,7 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
+      stream.next(m.Index);
       stream.next(m.Distance);
       stream.next(m.AoA);
     }
@@ -193,6 +201,8 @@ struct Printer< ::ros_basics_turorials::Localize_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::ros_basics_turorials::Localize_<ContainerAllocator>& v)
   {
+    s << indent << "Index: ";
+    Printer<uint64_t>::stream(s, indent + "  ", v.Index);
     s << indent << "Distance: ";
     Printer<double>::stream(s, indent + "  ", v.Distance);
     s << indent << "AoA: ";
