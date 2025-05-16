@@ -26,8 +26,11 @@ def estimate_position(d, aoa_deg):
 anchor1 = np.array([0.0, 0.0])  # Fixed anchor position
 
 
-def wrap_angle(angle):
+def wrap_angle_radians(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
+def wrap_angle_360(angle):
+    """Wrap angle to [0, 360) degrees."""
+    return angle % 360
 
 def calculate_initial_guess(anchor, d, aoa_deg):
     aoa_rad = np.deg2rad(aoa_deg)
@@ -67,7 +70,7 @@ class ExtendedKalmanFilter:
         ])
 
         y = z - z_pred
-        y[1] = wrap_angle(y[1])
+        y[1] = wrap_angle_radians(y[1])
 
         #python2
         S = H.dot(self.P).dot(H.T) + self.R
@@ -97,16 +100,17 @@ def chatter_callback(msg):
     
     #Debug msg
     received_xy = calculate_initial_guess(anchor1, msg.Distance, msg.AoA)
-    print("Received Position x/y: ", received_xy)
+    print("Received Index {} / {} / {} / {} ".format(msg.Index, msg.Distance, msg.AoA, received_xy))
     predict_xy = ekf.current_position()
     deviation = np.abs((np.linalg.norm(predict_xy) - np.linalg.norm(received_xy)))
     if (deviation >= 5):
         print("Deviation too large, ignoring prediction")
     else:
         #public position to other node
-        print("EKF Position x/y:", predict_xy)
         ranging_msg = Localize()
         predict_distance, predict_angle = calcualte_distance_angle(0, 0, predict_xy[0], predict_xy[1])
+        print("Predicted Index {} / {} / {} / {} ".format(msg.Index, predict_distance, predict_angle, predict_xy))
+        ranging_msg.Index = msg.Index
         ranging_msg.Distance = predict_distance
         ranging_msg.AoA = predict_angle
         pub_server.publish(ranging_msg)
