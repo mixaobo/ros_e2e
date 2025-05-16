@@ -4,7 +4,7 @@ import numpy as np
 from ros_basics_turorials.msg import Localize
 from scipy.optimize import least_squares
 
-anchor1 = np.array([0.0, 0.0])  # Fixed anchor position
+
 
 """
 #This function calculates the residuals for the optimization problem.
@@ -23,6 +23,8 @@ def estimate_position(d, aoa_deg):
     result = least_squares(residuals, initial_guess, args=(anchor1, d, aoa_rad), method='lm')
     return result.x
 """
+anchor1 = np.array([0.0, 0.0])  # Fixed anchor position
+
 
 def wrap_angle(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
@@ -33,7 +35,13 @@ def calculate_initial_guess(anchor, d, aoa_deg):
     y = anchor[1] + d * np.sin(aoa_rad)
     return np.array([x, y])
 
-
+def calcualte_distance_angle(x1, y1, x2, y2):
+    dx = x2 - x1
+    dy = y2 - y1
+    distance = np.hypot(dx, dy)
+    angle_rad = np.arctan2(dy, dx)
+    angle_deg = np.rad2deg(angle_rad)
+    return distance, angle_deg
 
 class ExtendedKalmanFilter:
     def __init__(self, x_init, P_init, Q, R):
@@ -70,6 +78,8 @@ class ExtendedKalmanFilter:
         return self.x
 
 def chatter_callback(msg):
+    global pub_server
+    
     d = msg.Distance
     aoa_rad = np.deg2rad(msg.AoA)
     z = np.array([d, aoa_rad])
@@ -86,10 +96,22 @@ def chatter_callback(msg):
     else:
         #public position to other node
         print("EKF Position x/y:", predict_xy)
+        ranging_msg = Localize()
+        predict_distance, predict_angle = calcualte_distance_angle(0, 0, predict_xy[0], predict_xy[1])
+        ranging_msg.Distance = predict_distance
+        ranging_msg.AoA = predict_angle
+        pub_server.publish(ranging_msg)
     print("------------")
 
-def listener():
-    rospy.init_node('listener', anonymous=True)
+def Node_localize():
+    global pub_server
+    #Initialize
+    rospy.init_node('node_localize', anonymous=True)
+
+    #Publish to node_server
+    pub_server = rospy.Publisher('topic_localize', Localize, queue_size=10) 
+
+    # subscribe to node_ethernet
     rospy.Subscriber('chatter', Localize, chatter_callback)
     rospy.spin()
 
@@ -106,4 +128,4 @@ ekf = ExtendedKalmanFilter(
 )
 
 if __name__ == '__main__':
-    listener()
+    Node_localize()

@@ -17,7 +17,7 @@ def talker():
 
     # A counter variable used to modify the message content in each iteration.
     distance = 20
-    i = 0
+    i = 20
     while not rospy.is_shutdown():
         # Creates a string message with a counter value appended to "hello world".
         ranging_msg = Localize()
