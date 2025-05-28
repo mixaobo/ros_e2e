@@ -28,6 +28,7 @@ anchor1 = np.array([0.0, 0.0])  # Fixed anchor position
 
 def wrap_angle_radians(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
+
 def wrap_angle_360(angle):
     """Wrap angle to [0, 360) degrees."""
     return angle % 360
@@ -72,25 +73,16 @@ class ExtendedKalmanFilter:
         y = z - z_pred
         y[1] = wrap_angle_radians(y[1])
 
-        #python2
         S = H.dot(self.P).dot(H.T) + self.R
         K = self.P.dot(H.T).dot(np.linalg.inv(S))
         self.x = self.x + K.dot(y)
         self.P = (np.eye(2) - K.dot(H)).dot(self.P)
 
-        """
-        #python3
-        S = H @ self.P @ H.T + self.R
-        K = self.P @ H.T @ np.linalg.inv(S)
-        self.x = self.x + K @ y
-        self.P = (np.eye(2) - K @ H) @ self.P
-        """
-
     def current_position(self):
         return self.x
 
-def chatter_callback(msg):
-    global pub_server
+def Ranging_callback(msg):
+    global pub_Localization
     
     d = msg.Distance
     aoa_rad = np.deg2rad(msg.AoA)
@@ -113,31 +105,31 @@ def chatter_callback(msg):
         ranging_msg.Index = msg.Index
         ranging_msg.Distance = predict_distance
         ranging_msg.AoA = predict_angle
-        pub_server.publish(ranging_msg)
+        pub_Localization.publish(ranging_msg)
     print("------------")
 
 def Node_localize():
-    global pub_server
+    global pub_Localization
     #Initialize
-    rospy.init_node('node_localize', anonymous=True)
+    rospy.init_node('node_Localization', anonymous=True)
 
-    #Publish to node_server
-    pub_server = rospy.Publisher('topic_localize', Localize, queue_size=10) 
+    #Publish to
+    pub_Localization = rospy.Publisher('topic_Localization', Localize, queue_size=10)
 
-    # subscribe to node_ethernet
-    rospy.Subscriber('chatter', Localize, chatter_callback)
+    #Subscribe to
+    rospy.Subscriber('topic_Ranging', Localize, Ranging_callback)
     rospy.spin()
 
 # Initial state
 # P:  < 1: trust more on inital predictions / ~5: balance / >10: trust more on measurements
 # Q: 0.01: standstill/ 0.1: Slow movement / fast movement 0.3 ~ 0.5 / Vehicle: 1.0+
 # R Small: trust measurrements / Large: trust predictions. variance = standard_deviation**2
-initial_x = calculate_initial_guess(anchor1, 60, 40)
+initial_x = calculate_initial_guess(anchor1, 10, 40)
 ekf = ExtendedKalmanFilter(
     x_init=initial_x,
     P_init=np.eye(2) * 100,
-    Q=np.eye(2) * 0.3,
-    R=np.diag([1.0, np.deg2rad(1.0)**2]) 
+    Q=np.eye(2) * 5.0,
+    R=np.diag([5**2, np.deg2rad(5.0)**2]) #(cm, aoa)
 )
 
 if __name__ == '__main__':
