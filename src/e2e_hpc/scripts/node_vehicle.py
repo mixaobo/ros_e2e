@@ -2,7 +2,7 @@
 import rospy
 from ros_basics_turorials.msg import CustomMsg_Door
 from ros_basics_turorials.msg import CustomMsg_Ranging
-from ros_basics_turorials.msg import CutsomMsg_Connection
+from ros_basics_turorials.msg import CustomMsg_Connection
 
 def Connection_callback(msg):
   """#Handle vehicle status

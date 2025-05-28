@@ -71,10 +71,11 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  actionlib_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -108,7 +109,7 @@ add_message_files(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES e2e_hpc
-  CATKIN_DEPENDS oscpp rospy std_msgs message_runtime
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
   DEPENDS system_lib
 )
 
@@ -167,6 +168,7 @@ catkin_install_python(PROGRAMS
   scripts/node_localize.py
   scripts/node_server.py
   scripts/node_vehicle.py
+  scripts/talker_e2e.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
