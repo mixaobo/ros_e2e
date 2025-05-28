@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 import rospy
 import numpy as np
-from ros_basics_turorials.msg import Localize
-from scipy.optimize import least_squares
+from ros_basics_turorials.msg import CustomMsg_Ranging
+
 
 
 
@@ -84,28 +84,28 @@ class ExtendedKalmanFilter:
 def Ranging_callback(msg):
     global pub_Localization
     
-    d = msg.Distance
-    aoa_rad = np.deg2rad(msg.AoA)
+    d = msg.distance
+    aoa_rad = np.deg2rad(msg.aoa)
     z = np.array([d, aoa_rad])
     ekf.predict()
     ekf.update(z, anchor1)
     
     #Debug msg
-    received_xy = calculate_initial_guess(anchor1, msg.Distance, msg.AoA)
-    print("Received Index {} / {} / {} / {} ".format(msg.Index, msg.Distance, msg.AoA, received_xy))
+    received_xy = calculate_initial_guess(anchor1, msg.distance, msg.aoa)
+    print("Received Index  {} / {} / {} ".format(msg.distance, msg.aoa, received_xy))
     predict_xy = ekf.current_position()
     deviation = np.abs((np.linalg.norm(predict_xy) - np.linalg.norm(received_xy)))
     if (deviation >= 5):
         print("Deviation too large, ignoring prediction")
     else:
         #public position to other node
-        ranging_msg = Localize()
+        msg_localization = CustomMsg_Ranging()
         predict_distance, predict_angle = calcualte_distance_angle(0, 0, predict_xy[0], predict_xy[1])
-        print("Predicted Index {} / {} / {} / {} ".format(msg.Index, predict_distance, predict_angle, predict_xy))
-        ranging_msg.Index = msg.Index
-        ranging_msg.Distance = predict_distance
-        ranging_msg.AoA = predict_angle
-        pub_Localization.publish(ranging_msg)
+        print("Predicted Index  {} / {} / {} ".format(predict_distance, predict_angle, predict_xy))
+        msg_localization.firstPath_power = msg.firstPath_power
+        msg_localization.distance = predict_distance
+        msg_localization.aoa = predict_angle
+        pub_Localization.publish(msg_localization)
     print("------------")
 
 def Node_localize():
@@ -114,10 +114,10 @@ def Node_localize():
     rospy.init_node('node_Localization', anonymous=True)
 
     #Publish to
-    pub_Localization = rospy.Publisher('topic_Localization', Localize, queue_size=10)
+    pub_Localization = rospy.Publisher('topic_Localization', CustomMsg_Ranging, queue_size=10)
 
     #Subscribe to
-    rospy.Subscriber('topic_Ranging', Localize, Ranging_callback)
+    rospy.Subscriber('topic_Ranging', CustomMsg_Ranging, Ranging_callback)
     rospy.spin()
 
 # Initial state
