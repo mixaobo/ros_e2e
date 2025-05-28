@@ -1,0 +1,3 @@
+string veh_status
+string ble_status
+string uwb_status
