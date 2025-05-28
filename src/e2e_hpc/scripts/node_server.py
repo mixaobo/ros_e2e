@@ -1,26 +1,85 @@
 #!/usr/bin/env python2
 import rospy
-import numpy as np
-from ros_basics_turorials.msg import Localize
-from scipy.optimize import least_squares
+import threading
+import time
+import json
+import requests
 
-def node_server_callback(msg):
-    parsed_msg = Localize()
-    parsed_msg.Distance = msg.Distance
-    parsed_msg.AoA = msg.AoA
-    print("node_server received msg: ", parsed_msg)
-    
+from e2e_hpc.msg import CustomMsg_Ranging  # Adjust if needed
+from e2e_hpc.msg import CustomMsg_Vehicle  # Replace with your actual vehicle status msg
 
-def Node_server():
-    global pub_server
-    #Initialize
+HOST = '10.102.50.6' # server IP address
+PORT = 80            # server port
+
+latest_localization = None
+latest_vehicle = None
+lock = threading.Lock()
+new_data_event = threading.Event()  # Event to signal new data
+
+def localization_callback(msg):
+    global latest_localization
+    with lock:
+        latest_localization = msg
+    new_data_event.set()  # Signal new data
+
+def vehicle_callback(msg):
+    global latest_vehicle
+    with lock:
+        latest_vehicle = msg
+    new_data_event.set()  # Signal new data
+
+def make_payload(alive_counter):
+    with lock:
+        loc = latest_localization
+        veh = latest_vehicle
+
+    payload = {
+        "-": alive_counter,
+        "Connection": {
+            "VehicleStatus": getattr(veh, "status", "Unknown") if veh else "Unknown",
+            "BleStatus": getattr(veh, "ble_status", "Unknown") if veh else "Unknown",
+            "UwbStatus": getattr(veh, "uwb_status", "Unknown") if veh else "Unknown",
+        },
+        "Door": {
+            "FrontLeft": ["close", "lock"],   # Fill with actual data if available
+            "FrontRight": ["close", "lock"],
+            "RearLeft": ["close", "lock"],
+            "RearRight": ["close", "lock"],
+            "Trunk": ["close", "lock"]
+        },
+        "Ranging": {
+            "FisrtPath_Power": getattr(loc, "firstPath_power", 0) if loc else 0,
+            "AOA": getattr(loc, "aoa", 0.0) if loc else 0.0,
+            "Distance": getattr(loc, "distance", 0) if loc else 0,
+        },
+        "Device_ID": 0xFF
+    }
+    return payload
+
+def sender_thread():
+    alive_counter = 1
+    while not rospy.is_shutdown():
+        # Wait for new data event
+        new_data_event.wait()
+        if rospy.is_shutdown():
+            break
+        payload = make_payload(alive_counter)
+        try:
+            response = requests.post(url="http://{}:{}/api/".format(HOST, PORT), json=payload)
+            print("Alive Counter: {} | Response: {} | Payload: {}".format(alive_counter, response.status_code, payload))
+        except requests.RequestException as e:
+            print("Failed to send payload: {}".format(e))
+        alive_counter += 1
+        new_data_event.clear()  # Reset event and wait for next data
+
+def node_server():
     rospy.init_node('node_server', anonymous=True)
-
-    # subscribe to node_localize
-    rospy.Subscriber('topic_localize', Localize, node_server_callback)
+    rospy.Subscriber('topic_Localization', CustomMsg_Ranging, localization_callback)
+    rospy.Subscriber('topic_Vehicle', CustomMsg_Vehicle, vehicle_callback)
+    thread = threading.Thread(target=sender_thread)
+    thread.daemon = True
+    thread.start()
     rospy.spin()
 
-
-
 if __name__ == '__main__':
-    Node_server()
+    node_server()
