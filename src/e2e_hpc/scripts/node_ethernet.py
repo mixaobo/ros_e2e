@@ -57,24 +57,14 @@ def start_node_ethernet():
         # Main server loop: accept new connections
         while not rospy.is_shutdown():
             try:
-                srv.settimeout(1.0)  # Timeout to allow ROS shutdown checks
-                try:
-                    conn, addr = srv.accept()  # Wait for a client connection
-                except socket.timeout:
-                    continue  # No connection, check for shutdown and continue
+                conn, addr = srv.accept()  # Wait for a client connection
 
-                srv.settimeout(None)
                 rospy.loginfo("Accepted connection from {}".format(addr))
                 buffer = b''  # Buffer for incoming data
 
                 # Connection loop: receive and process data from the client
                 while not rospy.is_shutdown():
-                    conn.settimeout(1.0)  # Timeout for receiving data
-                    try:
-                        data = conn.recv(4096)  # Receive up to 4096 bytes
-                    except socket.timeout:
-                        continue  # No data, check for shutdown and continue
-                    conn.settimeout(None)
+                    data = conn.recv(4096)  # Receive up to 4096 bytes
 
                     if not data:
                         # Client disconnected
