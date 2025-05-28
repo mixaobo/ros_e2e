@@ -30,10 +30,10 @@ def Node_vehicle():
 
     #Publish to
     pub_Door = rospy.Publisher('topic_Door', CustomMsg_Door, queue_size=10)
-    pub_Connection = rospy.Publisher('topic_Connection', CutsomMsg_Connection, queue_size=10)
+    pub_Connection = rospy.Publisher('topic_Connection', CustomMsg_Connection, queue_size=10)
 
     #Subscribe to
-    rospy.Subscriber('topic_Connection', CutsomMsg_Connection, Connection_callback)
+    rospy.Subscriber('topic_Connection', CustomMsg_Connection, Connection_callback)
     rospy.Subscriber('topic_Localization', CustomMsg_Ranging, Localization_callback)
     rospy.spin()
 
