@@ -89,20 +89,46 @@ class ExtendedKalmanFilter:
     def current_position(self):
         return self.x
 
-def Ranging_callback(ekf_class, msg, publish_to_node):
+class ExtendedKalmanFilterPolar:
+    def __init__(self, x_init, P_init, Q, R):
+        self.x = x_init  # [distance, aoa_rad]
+        self.P = P_init
+        self.Q = Q
+        self.R = R
 
+    def predict(self):
+        # For static or simple motion, prediction may be identity
+        self.P = self.P + self.Q
+
+    def update(self, z):
+        # z = [measured_distance, measured_aoa_rad]
+        y = z - self.x
+        y[1] = wrap_angle_radians(y[1])  # Ensure angle difference is wrapped
+
+        H = np.eye(2)  # Measurement matrix is identity
+        S = np.dot(np.dot(H, self.P), H.T) + self.R
+        K = np.dot(np.dot(self.P, H.T), np.linalg.inv(S))
+        self.x = self.x + np.dot(K, y)
+        self.x[1] = wrap_angle_radians(self.x[1])  # Keep angle in [-pi, pi]
+        self.P = np.dot((np.eye(2) - np.dot(K, H)), self.P)
+
+    def current_position(self):
+        # Returns distance and AoA in degrees
+        return self.x[0], np.rad2deg(self.x[1])
+
+def Ranging_callback(ekf_class, msg, publish_to_node):
     d = msg.distance
     aoa_rad = np.deg2rad(msg.aoa)
     z = np.array([d, aoa_rad])
     ekf_class.predict()
-    ekf_class.update(z, anchor1)
+    ekf_class.update(z)
     
     #Debug msg
     received_xy = calculate_initial_guess(anchor1, msg.distance, msg.aoa)
     print("Kalman input  {} / {}".format(msg.distance, msg.aoa))
-    predict_xy = ekf_class.current_position()
+    predict_distance, predict_angle = ekf_class.current_position()
     
-    predict_distance, predict_angle = calcualte_distance_angle(0, 0, predict_xy[0], predict_xy[1])
+    #predict_distance, predict_angle = calcualte_distance_angle(0, 0, predict_xy[0], predict_xy[1])
     print("Kalman output {} / {}".format(predict_distance, predict_angle))
     msg_localization = CustomMsg_Ranging()
     msg_localization = msg
@@ -117,7 +143,7 @@ def Ranging_Passenger_callback(msg):
     global RangingMsg_Passenger
     with threading_lock:
         RangingMsg_Passenger = msg
-        RangingMsg_Passenger.system_time = msg.header.stamp
+        #RangingMsg_Passenger.system_time = msg.header.stamp
     RangingMsg_Passenger_Event.set()
 
 counter = 0
@@ -129,7 +155,6 @@ def Ranging_Driver_callback(msg):
     if (counter >= 10):
         if(counter == 10):
             previous_aoa = current_aoa
-        print(threading_lock)
         counter = 11
         # if (previous_aoa >= 50):
         #     if (-70 <= current_aoa <= -50):
@@ -193,15 +218,15 @@ def Node_Ranging():
 # Q: 0.01: standstill/ 0.1: Slow movement / fast movement 0.3 ~ 0.5 / Vehicle: 1.0+
 # R Small: trust measurrements / Large: trust predictions. variance = standard_deviation**2
 initial_x = calculate_initial_guess(anchor1, 10, 40)
-ekf_driver = ExtendedKalmanFilter(
-    x_init=initial_x,
+ekf_driver = ExtendedKalmanFilterPolar(
+    x_init=[10.0, 40.0],  # Initial position guess (x, y)
     P_init=np.eye(2) * 100,
     Q=np.eye(2) * 5.0,
     R=np.diag([5**2, np.deg2rad(3.0)**2]) #(cm, aoa)
 )
 
-ekf_passenger = ExtendedKalmanFilter(
-    x_init=initial_x,
+ekf_passenger = ExtendedKalmanFilterPolar(
+    x_init=[10.0, 40.0],
     P_init=np.eye(2) * 100,
     Q=np.eye(2) * 5.0,
     R=np.diag([5**2, np.deg2rad(3.0)**2]) #(cm, aoa)
